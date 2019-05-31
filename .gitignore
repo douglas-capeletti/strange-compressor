@@ -4,6 +4,7 @@
 ### C ###
 # Prerequisites
 *.d
+app-file
 
 # Object files
 *.o
