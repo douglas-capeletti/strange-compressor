@@ -41,7 +41,6 @@ void leituraIndexada(char *arquivo, int *freqs)
         freqs[c]++;
     }
     fclose(arq);
-    return freqs;
 }
 
 void imprimeDados(int *freqs)
