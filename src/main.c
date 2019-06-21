@@ -18,7 +18,7 @@ Node *genTree(Node *node, int size);
 Node *newNode(char key, int freq);
 Node *newTreeNode(Node *node, int size);
 
-void printPostorder(Node *node);
+void printree(Node* root, int level);
 
 int compare(const void *a, const void *b);
 
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     printFreq(list, size);
 
     Node *tree = genTree(list, size);
-    printPostorder(tree);
+    printree(tree, 0);
 
     return EXIT_SUCCESS;
 }
@@ -108,19 +108,17 @@ Node *newTreeNode(Node *node, int size)
     return new;
 }
 
-void printPostorder(Node *node)
+void printree(Node* root, int level)
 {
-    if (node == NULL)
-        return;
-
-    // first recur on left subtree
-    printPostorder(node->esq);
-
-    // then recur on right subtree
-    printPostorder(node->dir);
-
-    // now deal with the node
-    printf("%c -> %d ", node->key, node->freq);
+    if(root == NULL){
+        padding ('\t', level);
+        puts ("~");
+    } else {
+        printree(root->dir, level + 1 );
+        padding('\t', level );
+        printf("%c:%d\n", root->key, root->freq);
+        printree(root->esq, level + 1 );
+    }
 }
 
 Node *newNode(char key, int freq)
