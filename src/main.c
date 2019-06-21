@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 
 typedef struct Node
 {
@@ -11,36 +11,34 @@ typedef struct Node
     struct Node *dir;
 } Node;
 
-typedef struct Map
-{
-    int length;
-    struct Node *node;
-} Map;
+int readMap(char *arquivo, int *freqs);
+Node *genList(int *dados, int size);
+Node *genTree(Node *node, int size);
 
-Map *index(char *arquivo);
-Node *genTree(Map *map);
-
-Map *newMap(Node *node, int length);
 Node *newNode(char key, int freq);
-Node *newTreeNode(Map *map);
+Node *newTreeNode(Node *node, int size);
 
 int compare(const void *a, const void *b);
+
+void printFreq(Node *node, int size);
 
 int main(int argc, char **argv)
 {
     //leitura e criacao do mapa de nodos
-    Map *map = index(argv[1]);
-    
-    //criacao da arvore
-    Node *node = genTree(map);
+    int dados[256];
+    int size = readMap(argv[1], dados);
+    Node *list = genList(dados, size);
+    printFreq(list, size);
+    Node *tree = genTree(list, size);
     
     //imprime o nodo raiz
-    //printf("\n%c - (%d) \n", node->key, node->freq);
+    printf("Bingo\n");
+    //printf("\n%c - (%d) \n", tree->key, tree->freq);
 
     return EXIT_SUCCESS;
 }
 
-Map *index(char *arquivo)
+int readMap(char *arquivo, int *freqs)
 {
     //leitura
     FILE *arq = fopen(arquivo, "r");
@@ -51,7 +49,6 @@ Map *index(char *arquivo)
     }
 
     //zera os valores nas posicoes
-    int freqs[256];
     for (int i = 0; i < 256; i++)
         freqs[i] = 0;
 
@@ -62,44 +59,51 @@ Map *index(char *arquivo)
             freqs[c]++;
     fclose(arq);
 
+    int count = 0;
+    for(int i = 0; i<256; i++)
+        if(freqs[i] > 0)
+            count += 1;
+    
+    return count;
+}
+
+Node * genList(int *freqs, int size){
     //popula map com valores contidos no array de frequencias
     int index = 0;
-    Node *nodeList = malloc(sizeof(Node *));
+    Node *nodeList = malloc(sizeof(Node *)* size);
+
     for (int i = 0; i < 256; i++)
         if (freqs[i] > 0)
             nodeList[index++] = *newNode(i, freqs[i]);
 
     //Ordena os nodos de forma decrescente baseados na frequencia
     qsort(nodeList, index, sizeof(Node), compare);
-    return newMap(nodeList, index);
+    return nodeList;
 }
 
-Node *genTree(Map *map)
+Node *genTree(Node *node, int size)
 {
     //para somente quando há apenas um nodo raiz
-    if (map->length == 0)
-        return &map->node[0];
+    if (size == 0)
+        return &node[0];
 
     //cria um nodo na penultima posicao com a frequencia dos dois ultimos
-    map->node[map->length - 2] = *newTreeNode(map);
-
-    //subtrai um no tamanho final da lista
-    map->length = map->length - 1;
+    node[size - 2] = *newTreeNode(node, size);
 
     //ordena a lista já com o nodo novo
-    qsort(map->node, map->length, sizeof(Node), compare);
+    qsort(node, size -1, sizeof(Node), compare);
 
     //recursivo
-    genTree(map);
+    genTree(node, size-1);
 }
 
 //cria um nodo nodo para a arvore baseado nos dois ultimos do mapa
-Node *newTreeNode(Map *map)
+Node *newTreeNode(Node *node, int size)
 {
-    int sum = ((map->node[map->length - 1].freq) + (map->node[map->length - 2].freq));
+    int sum = ((node[size - 1].freq) + (node[size - 2].freq));
     Node *new = newNode('@', sum);
-    new->esq = &map->node[map->length - 1];
-    new->dir = &map->node[map->length - 2];
+    new->esq = &node[size - 1];
+    new->dir = &node[size - 2];
     return new;
 }
 
@@ -114,14 +118,14 @@ Node *newNode(char key, int freq)
     return new;
 }
 
-Map *newMap(Node *node, int length)
-{
-    Map *map = malloc(sizeof(Map *));
-    map->node = node;
-    map->length = length;
-}
-
 int compare(const void *a, const void *b)
 {
     return (((Node *)b)->freq - ((Node *)a)->freq);
+}
+
+void printFreq(Node *node, int size){
+    printf("\n");
+    for(int i=0; i<size; i++){
+        printf("[%c] - %d\n", node[i].key, node[i].freq);
+    }
 }
