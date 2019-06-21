@@ -19,6 +19,7 @@ Node *newNode(char key, int freq);
 Node *newTreeNode(Node *node, int size);
 
 void printree(Node* root, int level);
+void padding(char ch, int n);
 
 int compare(const void *a, const void *b);
 
@@ -91,7 +92,7 @@ Node *genTree(Node *node, int size)
     //cria um nodo na penultima posicao com a frequencia dos dois ultimos
     node[size - 2] = *newTreeNode(node, size);
 
-    //ordena a lista já com o nodo novo
+    //ordena a lvoid padding(char ch, int n)ista já com o nodo novo
     qsort(node, size - 1, sizeof(Node), compare);
 
     //recursivo
@@ -119,6 +120,14 @@ void printree(Node* root, int level)
         printf("%c:%d\n", root->key, root->freq);
         printree(root->esq, level + 1 );
     }
+}
+
+void padding(char ch, int n)
+{
+  int i;
+  for(i = 0; i < n; i++){
+    putchar(ch);
+  }
 }
 
 Node *newNode(char key, int freq)
