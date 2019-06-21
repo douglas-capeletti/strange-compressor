@@ -18,6 +18,8 @@ Node *genTree(Node *node, int size);
 Node *newNode(char key, int freq);
 Node *newTreeNode(Node *node, int size);
 
+void printPostorder(Node *node);
+
 int compare(const void *a, const void *b);
 
 void printFreq(Node *node, int size);
@@ -29,11 +31,9 @@ int main(int argc, char **argv)
     int size = readMap(argv[1], dados);
     Node *list = genList(dados, size);
     printFreq(list, size);
+
     Node *tree = genTree(list, size);
-    
-    //imprime o nodo raiz
-    printf("Bingo\n");
-    //printf("\n%c - (%d) \n", tree->key, tree->freq);
+    printPostorder(tree);
 
     return EXIT_SUCCESS;
 }
@@ -60,17 +60,18 @@ int readMap(char *arquivo, int *freqs)
     fclose(arq);
 
     int count = 0;
-    for(int i = 0; i<256; i++)
-        if(freqs[i] > 0)
+    for (int i = 0; i < 256; i++)
+        if (freqs[i] > 0)
             count += 1;
-    
+
     return count;
 }
 
-Node * genList(int *freqs, int size){
+Node *genList(int *freqs, int size)
+{
     //popula map com valores contidos no array de frequencias
     int index = 0;
-    Node *nodeList = malloc(sizeof(Node *)* size);
+    Node *nodeList = malloc(sizeof(Node *) * size);
 
     for (int i = 0; i < 256; i++)
         if (freqs[i] > 0)
@@ -91,10 +92,10 @@ Node *genTree(Node *node, int size)
     node[size - 2] = *newTreeNode(node, size);
 
     //ordena a lista já com o nodo novo
-    qsort(node, size -1, sizeof(Node), compare);
+    qsort(node, size - 1, sizeof(Node), compare);
 
     //recursivo
-    genTree(node, size-1);
+    genTree(node, size - 1);
 }
 
 //cria um nodo nodo para a arvore baseado nos dois ultimos do mapa
@@ -105,6 +106,21 @@ Node *newTreeNode(Node *node, int size)
     new->esq = &node[size - 1];
     new->dir = &node[size - 2];
     return new;
+}
+
+void printPostorder(Node *node)
+{
+    if (node == NULL)
+        return;
+
+    // first recur on left subtree
+    printPostorder(node->esq);
+
+    // then recur on right subtree
+    printPostorder(node->dir);
+
+    // now deal with the node
+    printf("%c -> %d ", node->key, node->freq);
 }
 
 Node *newNode(char key, int freq)
@@ -123,9 +139,11 @@ int compare(const void *a, const void *b)
     return (((Node *)b)->freq - ((Node *)a)->freq);
 }
 
-void printFreq(Node *node, int size){
+void printFreq(Node *node, int size)
+{
     printf("\n");
-    for(int i=0; i<size; i++){
+    for (int i = 0; i < size; i++)
+    {
         printf("[%c] - %d\n", node[i].key, node[i].freq);
     }
 }
